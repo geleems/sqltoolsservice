@@ -4,10 +4,8 @@
 
 using System;
 using System.IO;
-using Microsoft.SqlTools.Credentials.Utility;
+using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Utility;
-using Microsoft.SqlTools.ServiceLayer.SqlContext;
-using Microsoft.SqlTools.Utility;
 
 namespace Microsoft.SqlTools.Credentials
 {
@@ -26,32 +24,27 @@ namespace Microsoft.SqlTools.Credentials
             try
             {
                 // read command-line arguments
-                CommandOptions commandOptions = new CommandOptions(args, ServiceName);
-                if (commandOptions.ShouldExit)
-                {
-                    return;
-                }
+//                CommandOptions commandOptions = new CommandOptions(args, ServiceName);
+//                if (commandOptions.ShouldExit)
+//                {
+//                    return;
+//                }
 
-                string logFilePath = "credentials";
-                if (!string.IsNullOrWhiteSpace(commandOptions.LoggingDirectory))
-                {
-                    logFilePath = Path.Combine(commandOptions.LoggingDirectory, logFilePath);
-                }
+//                string logFilePath = "credentials";
+//                if (!string.IsNullOrWhiteSpace(commandOptions.LoggingDirectory))
+//                {
+//                    logFilePath = Path.Combine(commandOptions.LoggingDirectory, logFilePath);
+//                }
 
                 // turn on Verbose logging during early development
                 // we need to switch to Normal when preparing for public preview
-                Logger.Initialize(logFilePath: logFilePath, minimumLogLevel: LogLevel.Verbose, isEnabled: commandOptions.EnableLogging);
-                Logger.Write(LogLevel.Normal, "Starting SqlTools Credentials Provider");
+//                Logger.Initialize(logFilePath: logFilePath, minimumLogLevel: LogLevel.Verbose, isEnabled: true);
+//                Logger.Write(LogLevel.Normal, "Starting SqlTools Credentials Provider");
 
-                // set up the host details and profile paths 
-                var hostDetails = new HostDetails(
-                    name: "SqlTools Credentials Provider",
-                    profileId: "Microsoft.SqlTools.Credentials",
-                    version: new Version(1, 0));
-
-                SqlToolsContext sqlToolsContext = new SqlToolsContext(hostDetails);
-                UtilityServiceHost serviceHost = HostLoader.CreateAndStartServiceHost(sqlToolsContext);
-
+                string directory = Path.GetDirectoryName(typeof(Program).Assembly.Location);
+                string[] assemblies = {"Microsoft.SqlTools.Credentials.dll"};
+                ExtensibleServiceHost serviceHost = ExtensibleServiceHost.CreateDefaultExtensibleServer(directory, assemblies);
+                serviceHost.Start();
                 serviceHost.WaitForExit();
             }
             catch (Exception e)

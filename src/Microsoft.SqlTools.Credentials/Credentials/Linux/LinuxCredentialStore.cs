@@ -10,7 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.SqlTools.Credentials.Contracts;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.Hosting.Utility;
 
 namespace Microsoft.SqlTools.Credentials.Linux
 {

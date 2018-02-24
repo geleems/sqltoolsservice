@@ -7,8 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.SqlTools.Credentials.Contracts;
-using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.Hosting.Utility;
 using Newtonsoft.Json;
 
 namespace Microsoft.SqlTools.Credentials.Linux
@@ -54,7 +53,7 @@ namespace Microsoft.SqlTools.Credentials.Linux
                 serializedCreds = File.ReadAllText(this.fileName);
             }
 
-            CredentialsWrapper creds = JsonConvert.DeserializeObject<CredentialsWrapper>(serializedCreds, Constants.JsonSerializerSettings);
+            CredentialsWrapper creds = JsonConvert.DeserializeObject<CredentialsWrapper>(serializedCreds);
             if(creds != null)
             {
                 return creds.Credentials;
@@ -64,8 +63,8 @@ namespace Microsoft.SqlTools.Credentials.Linux
 
         public void SaveEntries(IEnumerable<Credential> entries)
         {
-            CredentialsWrapper credentials = new CredentialsWrapper() { Credentials = entries.ToList() };
-            string serializedCreds = JsonConvert.SerializeObject(credentials, Constants.JsonSerializerSettings);
+            CredentialsWrapper credentials = new CredentialsWrapper { Credentials = entries.ToList() };
+            string serializedCreds = JsonConvert.SerializeObject(credentials);
 
             lock(lockObject)
             {

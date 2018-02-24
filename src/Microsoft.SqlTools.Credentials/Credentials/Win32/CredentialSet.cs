@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.Hosting.Utility;
 
 namespace Microsoft.SqlTools.Credentials.Win32
 {

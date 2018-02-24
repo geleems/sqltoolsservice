@@ -3,8 +3,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 //
 
-using Microsoft.SqlTools.Hosting.Protocol.Contracts;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.Hosting.Contracts;
+using Microsoft.SqlTools.Hosting.Utility;
 
 namespace Microsoft.SqlTools.Credentials.Contracts
 {

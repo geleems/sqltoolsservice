@@ -5,13 +5,13 @@
 
 using System;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using Microsoft.SqlTools.Credentials.Contracts;
 using Microsoft.SqlTools.Credentials.Linux;
 using Microsoft.SqlTools.Credentials.OSX;
 using Microsoft.SqlTools.Credentials.Win32;
+using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
-using Microsoft.SqlTools.Utility;
+using Microsoft.SqlTools.Hosting.Utility;
 
 namespace Microsoft.SqlTools.Credentials
 {
@@ -21,26 +21,20 @@ namespace Microsoft.SqlTools.Credentials
     /// </summary>
     public class CredentialService
     {
-        internal static string DefaultSecretsFolder = ".sqlsecrets";
-        internal const string DefaultSecretsFile = "sqlsecrets.json";
+        private const string DefaultSecretsFolder = ".sqlsecrets";
+        private const string DefaultSecretsFile = "sqlsecrets.json";
         
 
         /// <summary>
         /// Singleton service instance
         /// </summary>
-        private static Lazy<CredentialService> instance
+        private static readonly Lazy<CredentialService> instance 
             = new Lazy<CredentialService>(() => new CredentialService());
 
         /// <summary>
         /// Gets the singleton service instance
         /// </summary>
-        public static CredentialService Instance
-        {
-            get
-            {
-                return instance.Value;
-            }
-        }
+        public static CredentialService Instance => instance.Value;
 
         private ICredentialStore credStore;
 
@@ -48,7 +42,7 @@ namespace Microsoft.SqlTools.Credentials
         /// Default constructor is private since it's a singleton class
         /// </summary>
         private CredentialService()
-            : this(null, new StoreConfig() 
+            : this(null, new StoreConfig
                 { CredentialFolder = DefaultSecretsFolder, CredentialFile = DefaultSecretsFile, IsRelativeToUserHomeDir = true})
         {
         }
@@ -58,7 +52,15 @@ namespace Microsoft.SqlTools.Credentials
         /// </summary>
         internal CredentialService(ICredentialStore store, StoreConfig config)
         {
-            credStore = store != null ? store : GetStoreForOS(config);
+            credStore = store ?? GetStoreForOS(config);
+        }
+        
+        public void InitializeService(IServiceHost serviceHost)
+        {
+            // Register request and event handlers with the Service Host
+            serviceHost.SetRequestHandler(ReadCredentialRequest.Type, HandleReadCredentialRequest);
+            serviceHost.SetRequestHandler(SaveCredentialRequest.Type, HandleSaveCredentialRequest);
+            serviceHost.SetRequestHandler(DeleteCredentialRequest.Type, HandleDeleteCredentialRequest);
         }
 
         /// <summary>
@@ -71,11 +73,11 @@ namespace Microsoft.SqlTools.Credentials
                 return new Win32CredentialStore();
             }
 #if !WINDOWS_ONLY_BUILD
-            else if(RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 return new OSXCredentialStore();
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 return new LinuxCredentialStore(config);
             }
@@ -83,33 +85,34 @@ namespace Microsoft.SqlTools.Credentials
             throw new InvalidOperationException("Platform not currently supported");
         }
 
-        public void InitializeService(IProtocolEndpoint serviceHost)
+        #region Request Handlers
+        
+        internal void HandleReadCredentialRequest(Credential credential, RequestContext<Credential> requestContext)
         {
-            // Register request and event handlers with the Service Host
-            serviceHost.SetRequestHandler(ReadCredentialRequest.Type, HandleReadCredentialRequest);
-            serviceHost.SetRequestHandler(SaveCredentialRequest.Type, HandleSaveCredentialRequest);
-            serviceHost.SetRequestHandler(DeleteCredentialRequest.Type, HandleDeleteCredentialRequest);
+            HandleRequest(() => ReadCredential(credential), requestContext, "HandleReadCredentialRequest");
         }
 
-        public async Task HandleReadCredentialRequest(Credential credential, RequestContext<Credential> requestContext)
+        internal void HandleSaveCredentialRequest(Credential credential, RequestContext<bool> requestContext)
         {
-            Func<Task<Credential>> doRead = () =>
-            {
-                return ReadCredentialAsync(credential);
-            };
-            await HandleRequest(doRead, requestContext, "HandleReadCredentialRequest");
+            HandleRequest(() => SaveCredential(credential), requestContext, "HandleSaveCredentialRequest");
         }
 
-
-        public async Task<Credential> ReadCredentialAsync(Credential credential)
+        internal void HandleDeleteCredentialRequest(Credential credential, RequestContext<bool> requestContext)
         {
-            return await Task.Factory.StartNew(() =>
-            {
-                return ReadCredential(credential);
-            });
+            HandleRequest(() => DeleteCredential(credential), requestContext, "HandleDeleteCredentialRequest");
         }
+        
+        #endregion
 
-        public Credential ReadCredential(Credential credential)
+        #region Private Helpers
+        
+        private bool DeleteCredential(Credential credential)
+        {
+            Credential.ValidateForLookup(credential);
+            return credStore.DeletePassword(credential.CredentialId);
+        }
+        
+        private Credential ReadCredential(Credential credential)
         {
             Credential.ValidateForLookup(credential);
 
@@ -121,62 +124,29 @@ namespace Microsoft.SqlTools.Credentials
             }
             return result;
         }
-
-        public async Task HandleSaveCredentialRequest(Credential credential, RequestContext<bool> requestContext)
-        {
-            Func<Task<bool>> doSave = () =>
-            {
-                return SaveCredentialAsync(credential);
-            };
-            await HandleRequest(doSave, requestContext, "HandleSaveCredentialRequest");
-        }
-
-        public async Task<bool> SaveCredentialAsync(Credential credential)
-        {
-            return await Task.Factory.StartNew(() =>
-            {
-                return SaveCredential(credential);
-            });
-        }
-
-        public bool SaveCredential(Credential credential)
+        
+        private bool SaveCredential(Credential credential)
         {
             Credential.ValidateForSave(credential);
             return credStore.Save(credential);
         }
-
-        public async Task HandleDeleteCredentialRequest(Credential credential, RequestContext<bool> requestContext)
-        {
-            Func<Task<bool>> doDelete = () =>
-            {
-                return DeletePasswordAsync(credential);
-            };
-            await HandleRequest(doDelete, requestContext, "HandleDeleteCredentialRequest");
-        }
-
-        private async Task<bool> DeletePasswordAsync(Credential credential)
-        {
-            return await Task.Factory.StartNew(() =>
-            {
-                Credential.ValidateForLookup(credential);
-                return credStore.DeletePassword(credential.CredentialId);
-            });
-        }
-
-        private async Task HandleRequest<T>(Func<Task<T>> handler, RequestContext<T> requestContext, string requestType)
+        
+        private void HandleRequest<T>(Func<T> handler, RequestContext<T> requestContext, string requestType)
         {
             Logger.Write(LogLevel.Verbose, requestType);
 
             try
             {
-                T result = await handler();
-                await requestContext.SendResult(result);
+                T result = handler();
+                requestContext.SendResult(result);
             }
             catch (Exception ex)
             {
-                await requestContext.SendError(ex.ToString());
+                requestContext.SendError(ex.ToString());
             }
         }
+        
+        #endregion
 
     }
 }
