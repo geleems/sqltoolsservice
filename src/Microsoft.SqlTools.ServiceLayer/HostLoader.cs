@@ -4,7 +4,6 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.SqlTools.Credentials;
 using Microsoft.SqlTools.Extensibility;
 using Microsoft.SqlTools.Hosting;
 using Microsoft.SqlTools.Hosting.Protocol;
@@ -74,9 +73,6 @@ namespace Microsoft.SqlTools.ServiceLayer
 
             ConnectionService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(ConnectionService.Instance);
-
-            CredentialService.Instance.InitializeService(serviceHost);
-            serviceProvider.RegisterSingleService(CredentialService.Instance);
 
             QueryExecutionService.Instance.InitializeService(serviceHost);
             serviceProvider.RegisterSingleService(QueryExecutionService.Instance);
