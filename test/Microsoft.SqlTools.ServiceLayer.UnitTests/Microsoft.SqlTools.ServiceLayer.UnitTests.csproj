@@ -25,8 +25,7 @@
     <Reference Include="Castle.Core">
       <HintPath>../../bin/ref/Castle.Core.dll</HintPath>
     </Reference>
-    <ProjectReference Include="../../src/Microsoft.SqlTools.Hosting/Microsoft.SqlTools.Hosting.csproj" />
-    <ProjectReference Include="../../src/Microsoft.SqlTools.Credentials/Microsoft.SqlTools.Credentials.csproj" />
+    <ProjectReference Include="../../src/Microsoft.SqlTools.Hosting.Old/Microsoft.SqlTools.Hosting.Old.csproj" />
     <ProjectReference Include="../../src/Microsoft.SqlTools.ServiceLayer/Microsoft.SqlTools.ServiceLayer.csproj" />
     <ProjectReference Include="../../src/Microsoft.SqlTools.ResourceProvider/Microsoft.SqlTools.ResourceProvider.csproj" />
     <ProjectReference Include="../../src/Microsoft.SqlTools.ResourceProvider.Core/Microsoft.SqlTools.ResourceProvider.Core.csproj" />

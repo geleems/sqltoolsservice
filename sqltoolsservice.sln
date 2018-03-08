@@ -50,7 +50,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeCoverage", "CodeCoverag
 		test\CodeCoverage\runintegration.bat = test\CodeCoverage\runintegration.bat
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Hosting", "src\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj", "{AAE1F8D1-F7AB-4ABE-A55B-D423393AB352}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.Hosting.Old", "src\Microsoft.SqlTools.Hosting.Old\Microsoft.SqlTools.Hosting.Old.csproj", "{AAE1F8D1-F7AB-4ABE-A55B-D423393AB352}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.SqlTools.ServiceLayer", "src\Microsoft.SqlTools.ServiceLayer\Microsoft.SqlTools.ServiceLayer.csproj", "{835EDEB4-289B-4D6D-A9A0-609E43A87D6E}"
 EndProject

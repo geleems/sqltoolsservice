@@ -22,7 +22,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.SqlTools.ResourceProvider.Core\Microsoft.SqlTools.ResourceProvider.Core.csproj" />
-    <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
+    <ProjectReference Include="..\Microsoft.SqlTools.Hosting.Old\Microsoft.SqlTools.Hosting.Old.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Localization\sr.resx" />

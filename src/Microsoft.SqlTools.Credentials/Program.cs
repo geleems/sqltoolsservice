@@ -38,8 +38,8 @@ namespace Microsoft.SqlTools.Credentials
 
                 // turn on Verbose logging during early development
                 // we need to switch to Normal when preparing for public preview
-//                Logger.Initialize(logFilePath: logFilePath, minimumLogLevel: LogLevel.Verbose, isEnabled: true);
-//                Logger.Write(LogLevel.Normal, "Starting SqlTools Credentials Provider");
+                Logger.Initialize(logFilePath: "credentials", minimumLogLevel: LogLevel.Verbose, isEnabled: true);
+                Logger.Write(LogLevel.Normal, "Starting SqlTools Credentials Provider");
 
                 string directory = Path.GetDirectoryName(typeof(Program).Assembly.Location);
                 string[] assemblies = {"Microsoft.SqlTools.Credentials.dll"};

@@ -17,7 +17,7 @@
     <PackageReference Include="System.Composition" Version="1.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.SqlTools.Hosting\Microsoft.SqlTools.Hosting.csproj" />
+    <ProjectReference Include="..\Microsoft.SqlTools.Hosting.Old\Microsoft.SqlTools.Hosting.Old.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Localization\sr.resx" />
